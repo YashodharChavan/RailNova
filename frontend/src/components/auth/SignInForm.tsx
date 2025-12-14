@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
@@ -6,7 +6,8 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { useNavigate } from "react-router-dom";
-
+import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,55 @@ export default function SignInForm() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [loading, setIsLoading] = useState(false);
+  const toastShownRef = useRef(false);
+  const location = useLocation();
+
+
+
+  useEffect(() => {
+    if (location.pathname !== "/signin") return;
+    if (toastShownRef.current) return;
+
+    toast.custom(
+      (t) => (
+        <div
+          className={`
+          transition-all duration-300 ease-out
+          ${t.visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3"}
+          bg-white rounded-lg shadow-xl p-4 flex gap-3 items-start
+        `}
+        >
+          <span className="text-blue-500 text-lg">ℹ️</span>
+
+          <div className="flex-1">
+            <p className="font-semibold">Demo Credentials</p>
+            <p>Username: <b>Yashodhar29</b></p>
+            <p>Password: <b>Yashodhar#1236</b></p>
+          </div>
+
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="text-gray-400 hover:text-gray-600 transition"
+          >
+            ✕
+          </button>
+        </div>
+      ),
+      {
+        id: "demo-credentials",
+        duration: Infinity,
+      }
+    );
+
+    toastShownRef.current = true;
+
+    // ✅ CLEANUP — runs when route changes / component unmounts
+    return () => {
+      toast.dismiss("demo-credentials");
+      toastShownRef.current = false;
+    };
+  }, []);
+
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
@@ -25,7 +75,7 @@ export default function SignInForm() {
     try {
       console.log("TOKEN:", localStorage.getItem("token"));
 
-      const response = await fetch( 
+      const response = await fetch(
         "https://backend-of-railnova.vercel.app/api/login",
         {
           method: "POST",

@@ -18,7 +18,13 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
-      <Toaster />
+      <Toaster position="top-right"
+        toastOptions={{
+          duration: 10000,
+          style: {
+            maxWidth: "360px",
+          },
+        }} />
       <Routes>
         <Route
           element={
